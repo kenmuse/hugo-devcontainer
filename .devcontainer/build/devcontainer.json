@@ -16,7 +16,7 @@
 			// Interim
 			// Plucky Puffin = 25.04
 			// Oracular Oriole = 24.10
-			"LINUX_VARIANT": "jammy" // bullseye=788=>2.44,bookworm=841.84=>BREAK, jammy=646.8=>2.22,alpine=658.07
+			"LINUX_VARIANT": "noble" // bullseye=788=>2.44,bookworm=841.84=>BREAK, jammy=646.8=>2.22,alpine=658.07
 		}
 	},
 	 "hostRequirements": {
