@@ -5,13 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
-  
+
 env:
   BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog
   REGISTRY: ghcr.io
 jobs:        
   build-image:
-    needs: build-images
     runs-on: ubuntu-latest
     permissions:
       packages: write
