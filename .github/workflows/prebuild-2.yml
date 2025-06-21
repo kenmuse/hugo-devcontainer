@@ -1,4 +1,4 @@
-name: Prebuild Dev Container (Alt)
+name: Pre-build Dev Container (Single Runner)
 
 on:
   push:
