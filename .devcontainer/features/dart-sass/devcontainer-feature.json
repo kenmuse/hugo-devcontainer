@@ -1,0 +1,10 @@
+{
+    "id": "kenmuse.dart-sass",
+    "version": "1.0.0",
+    "name": "Dart Sass",
+    "description": "Installs dart-sass",
+    "containerEnv": {
+        "DART_DIR": "/usr/local/dart-sass",
+        "PATH": "/usr/local/dart-sass:${PATH}"
+    }
+}
