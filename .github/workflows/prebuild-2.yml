@@ -7,11 +7,14 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog
+  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-main
   REGISTRY: ghcr.io
 jobs:        
   build-image:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     permissions:
       packages: write
       # id-token: write
@@ -45,7 +48,7 @@ jobs:
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')         
-          export IMAGE_NAME="${REGISTRY}/${BASE_IMAGE_NAME}-main:${HUGO_VERSION}"
+          export IMAGE_NAME="${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
 
           devcontainer build --workspace-folder . --push false --image-name "${IMAGE_NAME}" \
             --platform linux/amd64,linux/arm64 \

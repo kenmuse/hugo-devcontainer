@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 if [ "alpine" == "$(grep -E '^ID=' /etc/os-release | cut -d'=' -f2)" ]
 then
@@ -6,11 +6,11 @@ then
     python3-dev py3-pip build-base wget freetype-dev libpng-dev \
     openblas-dev linux-headers libffi-dev cairo-dev pandoc
 else
-    sudo apt update
+    sudo apt-get update
     sudo apt-get install -y python3-dev libpng-dev libffi-dev pandoc python3-pip libcairo2-dev
 
     # Clean up
-    sudo apt clean
+    sudo apt-get clean
     sudo rm -rf /var/lib/apt/lists/*
 fi
 

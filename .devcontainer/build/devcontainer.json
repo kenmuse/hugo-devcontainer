@@ -26,7 +26,10 @@
 	"features": {
 		"./features/jupyter":{},
 		"./features/dart-sass":{}, 
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1":{},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1":{
+			"moby": false,
+			"version": "latest"
+		},
 		"ghcr.io/devcontainers/features/powershell:1":{
 			"version": "7.4.10", //7.4.3 Broken
 			"modules": "documentarian"
