@@ -21,7 +21,7 @@
 		"cpus": 4
 	},
 	"features": {
-		"./features/jupyter":{}, // Both Alpine and Debian
+		"./features/jupyter":{},
 		"./features/dart-sass":{}, 
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1":{},
 		"ghcr.io/devcontainers/features/powershell:1":{
