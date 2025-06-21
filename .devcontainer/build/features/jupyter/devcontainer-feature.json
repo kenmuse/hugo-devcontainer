@@ -1,7 +1,7 @@
 {
-    "id": "jupyter-alpine",
+    "id": "jupyter",
     "version": "0.1.0",
-    "name": "jupyter-alpine",
+    "name": "jupyter",
     "containerEnv": {
     },
     "entrypoint": "",
