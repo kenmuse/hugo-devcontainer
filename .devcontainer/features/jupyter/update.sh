@@ -1,3 +1,6 @@
 #!/bin/sh
 
-pip3 list -o | cut -f1 -d' ' | tr " " "\n" | awk '{if(NR>=3)print}' | cut -d' ' -f1 | xargs -n1 pip3 install -U
+echo "Updating all dependencies to the latest versions ..."
+pip3 install -r requirements.txt
+pip3 list --format=json | jq -r '.[].name' | xargs -n1 pip3 install -U
+pip3 freeze > requirements.txt

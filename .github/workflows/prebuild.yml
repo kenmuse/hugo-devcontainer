@@ -36,7 +36,7 @@ jobs:
         env:
           PLATFORM: ${{ matrix.platform }}
         run: |
-          npm install -g npm@latest
+          sudo npm install -g npm@latest
           npm install -g @devcontainers/cli
 
           # Use builder with exporter support (https://docs.docker.com/build/exporters/oci-docker/)
