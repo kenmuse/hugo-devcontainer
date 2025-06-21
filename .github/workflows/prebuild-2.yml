@@ -45,8 +45,9 @@ jobs:
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')         
+          export IMAGE_NAME="${REGISTRY}/${BASE_IMAGE_NAME}-main:${HUGO_VERSION}"
 
-          devcontainer build --workspace-folder . --push false --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-X:${HUGO_VERSION}" \
+          devcontainer build --workspace-folder . --push false --image-name "${IMAGE_NAME}" \
             --platform linux/amd64,linux/arm64 \
             --config '.devcontainer/build/devcontainer.json' \
             --output type=docker \
@@ -58,4 +59,4 @@ jobs:
             --label "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}" \
             --label "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}"
       
-          docker push --all-tests "${REGISTRY}/${BASE_IMAGE_NAME}-X:${HUGO_VERSION}"
+          docker push --all-tests "${IMAGE_NAME}"
