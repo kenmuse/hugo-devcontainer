@@ -48,6 +48,7 @@ jobs:
           devcontainer build \
             --workspace-folder . \
             --push true \
+            --config .devcontainer/build/devcontainer.json \
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
             --platform "linux/${PLATFORM}"
       - name: Inspect image
@@ -88,7 +89,7 @@ jobs:
             --annotation "index:org.opencontainers.image.version=${HUGO_VERSION}" \
             --annotation "index:org.opencontainers.image.ref.name=${GITHUB_REF}" \
             --annotation "index:org.opencontainers.image.name=Hugo ${HUGO_VERSION} Dev Container" \
-            --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${POWERSHELL_VERSION}; Node: ${NODE_VERSION}" \
+            --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}" \
             --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}" \
             "${REGISTRY}/${BASE_IMAGE_NAME}-amd64:${HUGO_VERSION}" \
             "${REGISTRY}/${BASE_IMAGE_NAME}-arm64:${HUGO_VERSION}"
