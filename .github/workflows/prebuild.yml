@@ -79,6 +79,7 @@ jobs:
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
+          
           docker buildx imagetools create \
             -t "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}" \
             -t "${REGISTRY}/${BASE_IMAGE_NAME}:latest" \
@@ -88,7 +89,7 @@ jobs:
             --annotation "index:org.opencontainers.image.ref.name=${GITHUB_REF}" \
             --annotation "index:org.opencontainers.image.name=Hugo ${HUGO_VERSION} Dev Container" \
             --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${POWERSHELL_VERSION}; Node: ${NODE_VERSION}" \
-            --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }} \
+            --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}" \
             "${REGISTRY}/${BASE_IMAGE_NAME}-amd64:${HUGO_VERSION}" \
             "${REGISTRY}/${BASE_IMAGE_NAME}-arm64:${HUGO_VERSION}"
           echo "************ INSPECTING IMAGE ************"
