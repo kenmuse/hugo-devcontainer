@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-dev
+  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-devcontainer
   REGISTRY: ghcr.io
 jobs:        
   build-image:
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-x
       cancel-in-progress: true
     permissions:
       packages: write
