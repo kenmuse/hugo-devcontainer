@@ -44,7 +44,7 @@ jobs:
           # docker buildx create --driver=docker-container --name image-builder
           # docker buildx use image-builder
 
-          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           devcontainer build \
             --workspace-folder . \
             --push true \
@@ -52,7 +52,7 @@ jobs:
             --platform "linux/${PLATFORM}"
       - name: Inspect image
         run: |
-          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}"
         
   merge-images:
@@ -76,9 +76,9 @@ jobs:
       - name: Merge images
         run: |
          # --sbom=true --attest type=provenance,mode=max \
-          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
-          export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
-          export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
+          export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
+          export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
           
           docker buildx imagetools create \
             -t "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}" \

@@ -1,0 +1,114 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+	"name": "Hugo",
+	"image": "ghcr.io/kenmuse/hugo-blog:latest",
+	
+	/*"customizations": {
+		"vscode": {
+			"settings": {
+				"github.copilot.chat.codeGeneration.useInstructionFiles": true,
+				"editor.experimental.pasteActions.enabled": true,
+				// "ipynb.experimental.pasteImages.enabled": true,
+				"markdown.experimental.editor.pasteLinks.enabled": true,
+				"markdown.copyFiles.destination": {
+*/
+					//"/content/blog/**/*": "images/${documentBaseName}/"
+/*
+				  },
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"pwsh":{
+						"path": "pwsh"
+					},
+					"bash": {
+						"path": "bash",
+						"icon": "remote-explorer" // See https://code.visualstudio.com/api/references/icons-in-labels
+					},
+					"ash": {
+						"path": "/bin/ash"
+					},
+					"zsh": {
+						"path": "zsh",
+						"args": [
+							"-l"
+						]
+					},
+					"JavaScript Debug Terminal": null
+				}
+			},
+			"extensions": [
+				"GitHub.copilot-chat",
+				"GitHub.vscode-pull-request-github",
+				"github.vscode-github-actions",
+
+				"davidanson.vscode-markdownlint",
+				"ms-azuretools.vscode-docker",
+				//		"gruntfuggly.mermaid-export",
+				"heaths.vscode-guid",
+				"streetsidesoftware.code-spell-checker",
+				"GitHub.vscode-pull-request-github",
+				"Tyriar.luna-paint",
+				"bierner.markdown-emoji",
+				"pnp.polacode",
+				"TakumiI.markdowntable",
+				// TOML
+				"tamasfe.even-better-toml",
+
+				// Git Tools
+				"mhutchie.git-graph",
+				"eamodio.gitlens",
+				"letmaik.git-tree-compare",
+				"arturock.gitstash",
+
+				// Mermaid
+				"tomoyukim.vscode-mermaid-editor",
+				"jock.svg",
+
+				// YAML Support
+				"redhat.vscode-yaml",
+
+				// Markdown Improvements
+				"nopeslide.vscode-drawio-plugin-mermaid",
+				"Janne252.fontawesome-autocomplete",
+				"bierner.github-markdown-preview",
+				"bierner.markdown-checkbox",
+				"bierner.markdown-footnotes",
+				"bierner.markdown-preview-github-styles",
+				"bierner.markdown-mermaid",
+				"ms-vscode.wordcount",
+				
+				// AsciiDoc Support
+				"asciidoctor.asciidoctor-vscode",
+
+				// JavaScript
+				"dbaeumer.vscode-eslint"
+			]
+		}
+	},
+	"forwardPorts": [
+		1313
+	],
+	// Uncomment the next line to run commands after the container is created.
+	"postStartCommand": {
+		"set-permissions-public": "sudo chown -R vscode:vscode ${containerWorkspaceFolder}/public",
+		"set-permissions-resources": "sudo chown -R vscode:vscode ${containerWorkspaceFolder}/resources"
+	},
+	"postAttachCommand": {
+    	"configure-git": "[ \"$(git config --global --get safe.directory)\" = '${containerWorkspaceFolder}' ] || git config --global --add safe.directory '${containerWorkspaceFolder}'"
+  	},
+	"postCreateCommand": {
+		"configure-bash": "echo \"export PROMPT_COMMAND='history -a'\" >> ~/.bashrc",
+		"setup-yarn": "corepack enable && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack install --global yarn@stable"
+	},
+	"containerUser": "vscode",
+	"portsAttributes": {
+		"1313": {
+			"label": "Hugo Server",
+			"onAutoForward": "notify"
+		}
+	},
+	"otherPortsAttributes": {
+		"onAutoForward": "ignore"
+	}
+	*/
+}
