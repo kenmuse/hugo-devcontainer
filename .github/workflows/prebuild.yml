@@ -49,7 +49,7 @@ jobs:
             --workspace-folder . \
             --push true \
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
-            --platform 'linux/${PLATFORM}'
+            --platform "linux/${PLATFORM}"
       - name: Inspect image
         run: |
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"]'.version)
