@@ -1,0 +1,96 @@
+name: Prebuild Dev Container
+
+on:
+  push:
+    branches:
+      - main
+env:
+  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog
+  REGISTRY: ghcr.io
+jobs:
+  build-images:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    strategy:
+      matrix:
+        include:
+          - runner-label: ubuntu-24.04
+            platform: amd64
+          - runner-label: ubuntu-24.04-arm
+            platform: arm64
+    runs-on: ${{ matrix.runner-label }}
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          npm install -g npm@latest
+          npm install -g @devcontainers/cli
+
+          # Use builder with exporter support (https://docs.docker.com/build/exporters/oci-docker/)
+          # Set up by setup-buildx
+          # docker buildx create --driver=docker-container --name image-builder
+          # docker buildx use image-builder
+
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"]'.version)
+          devcontainer build \
+            --workspace-folder . \
+            --push true \
+            --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
+            --platform 'linux/${PLATFORM}' \
+            --output type=oci
+      - name: Inspect image
+        run: |
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"]'.version)
+          docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}"
+        
+  merge-images:
+    needs: build-images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Merge images
+        run: |
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"]'.version)
+          export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"]'.version)
+          export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"]'.version)'
+          docker buildx imagetools create \
+            --sbom=true --attest type=provenance,mode= \
+            -t ${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}" \
+            -t ${REGISTRY}/${BASE_IMAGE_NAME}:latest" \
+            --annotation "index:org.opencontainers.image.created=$(date --rfc-3339=seconds --utc)" \
+            --annotation "index:org.opencontainers.image.source=${GITHUB_REPOSITORY_URL}"\
+            --annotation "index:org.opencontainers.image.version=${HUGO_VERSION}" \
+            --annotation "index:org.opencontainers.image.ref.name=${GITHUB_REF}" \
+            --annotation "index:org.opencontainers.image.name=Hugo ${HUGO_VERSION} Dev Container"
+            --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${POWERSHELL_VERSION}; Node: ${NODE_VERSION}" \
+            --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }} \
+            ${REGISTRY}/${BASE_IMAGE_NAME}-amd64:${HUGO_VERSION}" \
+            ${REGISTRY}/${BASE_IMAGE_NAME}-arm64:${HUGO_VERSION}"
+          echo "************ INSPECTING IMAGE ************"
+          docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
