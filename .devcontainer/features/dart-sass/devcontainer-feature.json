@@ -6,5 +6,8 @@
     "containerEnv": {
         "DART_DIR": "/usr/local/dart-sass",
         "PATH": "/usr/local/dart-sass:${PATH}"
-    }
+    },
+    "installsAfter": [
+      "ghcr.io/devcontainers/features/common-utils"
+  ]
 }

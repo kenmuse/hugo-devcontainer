@@ -17,5 +17,8 @@
                 "ms-toolsai.vscode-jupyter-slideshow"
             ]
         }
-    }
+    },
+    "installsAfter": [
+      "ghcr.io/devcontainers/features/common-utils"
+    ]
 }
