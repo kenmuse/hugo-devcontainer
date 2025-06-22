@@ -91,6 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+      actions: write # To cleanup artifacts
       # id-token: write
       contents: read
     steps:
