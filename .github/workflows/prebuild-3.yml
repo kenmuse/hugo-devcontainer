@@ -62,13 +62,11 @@ jobs:
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
             --platform "linux/${PLATFORM}"
       
-      - name: Inspect image
+      - name: Upload image
         run: |
           
-          docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}"
           skopeo copy --all --preserve-digests oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz docker:${REGISTRY}/${BASE_IMAGE_NAME}@@unknown-digest@@ 
           
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
           mkdir -p ${{ runner.temp }}/digests
           digest=$(skopeo inspect --format '{{.Digest}}' oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz)
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
@@ -76,7 +74,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
+          name: digests-${{matrix.platform}}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1    
