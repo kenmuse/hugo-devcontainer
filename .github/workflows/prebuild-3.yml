@@ -43,24 +43,47 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Gather versions
+        run: |
+          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
+          export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
+          export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
+          
+          echo "HUGO_VERSION=${HUGO_VERSION}" >> $GITHUB_ENV
+          echo "PWSH_VERSION=${PWSH_VERSION}" >> $GITHUB_ENV
+          echo "NODE_VERSION=${NODE_VERSION}" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels:
+            "org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}"
+
       - name: Build
         run: |
           sudo npm install -g npm@latest
           sudo npm install -g @devcontainers/cli
 
-          export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
-          echo HUGO_VERSION=${HUGO_VERSION} >> $GITHUB_ENV
-
           echo "Hugo Version: ${HUGO_VERSION}"
+          LABELS=$(jq -cr '.labels | to_entries|map("--label \"" + .key + "=" + .value + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
           devcontainer build \
             --workspace-folder . \
             --push false \
             --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz \
-            --label "org.opencontainers.image.source=${GITHUB_REPOSITORY_URL}" \
             --config .devcontainer/build/devcontainer.json \
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
-            --platform "linux/${PLATFORM}"
+            --platform "linux/${PLATFORM}" \
+            $LABELS
       
       - name: Upload image
         run: |
@@ -115,23 +138,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
      
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_IMAGE }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Show meta
-        run: |
-            echo $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-            echo "***"
-            echo -E "$DOCKER_METADATA_OUTPUT_JSON"
-
       - name: Gather versions
         run: |
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
@@ -147,21 +153,35 @@ jobs:
           echo "NODE_VERSION=${NODE_VERSION}" >> $GITHUB_ENV
           echo "DIGESTS=${DIGESTS}" >> $GITHUB_ENV
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels:
+            "org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}"
+            
+      - name: Show meta
+        run: |
+            echo $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+            echo "***"
+            echo -E "$DOCKER_METADATA_OUTPUT_JSON"
+
       - name: Merge images
         run: |
           # --sbom=true --attest type=provenance,mode=max \
+          ANNOTATIONS=$(jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          TAGS=$(jq -cr '.annotations | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
-          docker buildx imagetools create \
-            -t "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}" \
-            -t "${REGISTRY}/${BASE_IMAGE_NAME}:latest" \
-            --annotation "index:org.opencontainers.image.created=$(date --rfc-3339=seconds --utc)" \
-            --annotation "index:org.opencontainers.image.source=${GITHUB_REPOSITORY_URL}"\
-            --annotation "index:org.opencontainers.image.version=${HUGO_VERSION}" \
-            --annotation "index:org.opencontainers.image.ref.name=${GITHUB_REF}" \
-            --annotation "index:org.opencontainers.image.name=Hugo ${HUGO_VERSION} Dev Container" \
-            --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}" \
-            --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}" \
-            $DIGESTS
+          echo "docker buildx imagetools create $TAGS $ANNOTATIONS $DIGESTS"
+
+          docker buildx imagetools create $TAGS $ANNOTATIONS $DIGESTS
 
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
