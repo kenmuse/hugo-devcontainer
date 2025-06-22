@@ -138,7 +138,7 @@ jobs:
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
           
           cd ${{ runner.temp}}/digests
-          export DIGESTS=$(printf '${REGISTRY}/${BASE_IMAGE_NAME}@sha256:%s ' *)
+          export DIGESTS=$(printf "${REGISTRY}/${BASE_IMAGE_NAME}@sha256:%s " *)
 
           echo "Digests: ${DIGESTS}"
           echo "HUGO_VERSION=${HUGO_VERSION}" >> $GITHUB_ENV
@@ -161,5 +161,6 @@ jobs:
             --annotation "index:org.opencontainers.image.description=Hugo ${HUGO_VERSION}; PowerShell ${PWSHL_VERSION}; Node: ${NODE_VERSION}" \
             --annotation "index:org.opencontainers.image.revision=${{ github.event.pull_request.head.sha }}" \
             $DIGESTS
+
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
