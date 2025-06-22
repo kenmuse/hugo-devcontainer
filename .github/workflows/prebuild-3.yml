@@ -64,7 +64,7 @@ jobs:
       - name: Upload image
         run: |
           
-          skopeo copy --all --preserve-digests oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz docker:${REGISTRY}/${BASE_IMAGE_NAME}@@unknown-digest@@ 
+          skopeo copy --all --preserve-digests oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz docker://${REGISTRY}/${BASE_IMAGE_NAME}@@unknown-digest@@ 
           
           mkdir -p ${{ runner.temp }}/digests
           digest=$(skopeo inspect --format '{{.Digest}}' oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz)
