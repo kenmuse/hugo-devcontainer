@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-dc
+  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-devcontainer
   REGISTRY: ghcr.io
 jobs:        
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
