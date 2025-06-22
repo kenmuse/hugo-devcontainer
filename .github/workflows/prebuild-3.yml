@@ -8,6 +8,7 @@ on:
 env:
   BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-3
   REGISTRY: ghcr.io
+
 jobs:
   build-images:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -135,6 +136,8 @@ jobs:
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
+          
+          cd ${{ runner.temp}}/digests
           export DIGESTS=$(printf '${REGISTRY}/${BASE_IMAGE_NAME}@sha256:%s ' *)
 
           echo "Digests: ${DIGESTS}"
@@ -144,7 +147,6 @@ jobs:
           echo "DIGESTS=${DIGESTS}" >> $GITHUB_ENV
 
       - name: Merge images
-        working-directory: ${{ runner.temp}}/digests
         run: |
           # --sbom=true --attest type=provenance,mode=max \
 
