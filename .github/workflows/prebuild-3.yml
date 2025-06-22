@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node v22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.16'
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -68,6 +68,7 @@ jobs:
           
           mkdir -p ${{ runner.temp }}/digests
           digest=$(skopeo inspect --format '{{.Digest}}' oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz)
+          echo "Digest: ${digest#sha256:}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
       
       - name: Upload digest
@@ -122,22 +123,30 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+
       - name: Show meta
         run: |
             echo $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
             echo "***"
             echo -E "$DOCKER_METADATA_OUTPUT_JSON"
 
-      - name: Merge images
-        working-directory: ${{ runner.temp}}/digests
+      - name: Gather versions
         run: |
-          # --sbom=true --attest type=provenance,mode=max \
           export HUGO_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/hugo:1"].version')
           export PWSH_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/powershell:1"].version')
           export NODE_VERSION=$(sed -e 's/\/\/.*//' -e 's/\/\*.*\*\///' .devcontainer/build/devcontainer.json | jq -r '.features["ghcr.io/devcontainers/features/node:1"].version')
           export DIGESTS=$(printf '${REGISTRY}/${BASE_IMAGE_NAME}@sha256:%s ' *)
 
           echo "Digests: ${DIGESTS}"
+          echo "HUGO_VERSION=${HUGO_VERSION}" >> $GITHUB_ENV
+          echo "PWSH_VERSION=${PWSH_VERSION}" >> $GITHUB_ENV
+          echo "NODE_VERSION=${NODE_VERSION}" >> $GITHUB_ENV
+          echo "DIGESTS=${DIGESTS}" >> $GITHUB_ENV
+
+      - name: Merge images
+        working-directory: ${{ runner.temp}}/digests
+        run: |
+          # --sbom=true --attest type=provenance,mode=max \
 
           docker buildx imagetools create \
             -t "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}" \

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
+export DEBIAN_FRONTEND=noninteractive
 if [ "alpine" == "$(grep -E '^ID=' /etc/os-release | cut -d'=' -f2)" ]
 then
     sudo apk --no-cache --update-cache add gcc gfortran python3 \
     python3-dev py3-pip build-base wget freetype-dev libpng-dev \
     openblas-dev linux-headers libffi-dev cairo-dev pandoc
 else
-    sudo apt-get update
-    sudo apt-get install -y python3-dev libpng-dev libffi-dev pandoc python3-pip libcairo2-dev
+    sudo apt-get -y -qq update
+    sudo apt-get -y -qq install -y python3-dev libpng-dev libffi-dev pandoc python3-pip libcairo2-dev
 
     # Clean up
     sudo apt-get clean
