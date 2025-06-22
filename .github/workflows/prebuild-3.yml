@@ -6,7 +6,7 @@ on:
       - main
   workflow_dispatch:
 env:
-  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-3
+  BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-devcontainer
   REGISTRY: ghcr.io
 
 jobs:
@@ -164,3 +164,13 @@ jobs:
 
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
+
+      - name: Clean up digests
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARTIFACTS=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts" --jq '.artifacts[].id')
+          while IFS= read -r ARTIFACT_ID; do 
+            gh api --method DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}"
+          done <<< $ARTIFACTS
+
