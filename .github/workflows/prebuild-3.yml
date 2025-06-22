@@ -1,9 +1,9 @@
 name: Prebuild Dev Container (3)
 
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 env:
   BASE_IMAGE_NAME: ${{github.repository_owner}}/hugo-blog-3
