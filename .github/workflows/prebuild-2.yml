@@ -1,9 +1,9 @@
 name: Pre-build Dev Container (Single Runner)
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
 
 env:
