@@ -54,7 +54,6 @@ jobs:
           devcontainer build --workspace-folder . --push true --image-name "${IMAGE_NAME}" --image-name "${REGISTRY}/${BASE_IMAGE_NAME}:latest" \
             --platform linux/amd64,linux/arm64 \
             --config '.devcontainer/build/devcontainer.json' \
-            --output type=docker \
             --label "index:org.opencontainers.image.created=$(date --rfc-3339=seconds --utc)" \
             --label "index:org.opencontainers.image.source=${GITHUB_REPOSITORY_URL}"\
             --label "index:org.opencontainers.image.version=${HUGO_VERSION}" \
