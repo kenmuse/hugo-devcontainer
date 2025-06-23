@@ -88,6 +88,7 @@ jobs:
 
       
       - name: Upload image
+        id: upload-image
         run: |
           
           skopeo copy --all --preserve-digests oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz docker://${REGISTRY}/${BASE_IMAGE_NAME}@@unknown-digest@@ 
@@ -96,6 +97,7 @@ jobs:
           digest=$(skopeo inspect --format '{{.Digest}}' oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz)
           echo "Digest: ${digest#sha256:}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
+          echo "digest=${digest}" >> $GITHUB_OUPTUT
       
       - name: Upload digest
         uses: actions/upload-artifact@v4
@@ -104,7 +106,15 @@ jobs:
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1    
-          
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v2
+        id: attest
+        with:
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:${{ steps.upload-image.outputs.digest }}
+          subject-digest: ${{ steps.upload-image.outputs.digest }}
+          push-to-registry: true 
+
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v4
 #        with:
@@ -176,7 +186,7 @@ jobs:
         run: |
             echo $(jq -cr '.tags | map("-t ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
             echo "***"
-            echo -E "$DOCKER_METADATA_OUTPUT_JSON"
+            echo -E "$DOCKER_METADATA_OUTPUT_JSON"         
 
       - name: Merge images
         id: merge-images
@@ -224,13 +234,13 @@ jobs:
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
 
           digest=$(skopeo inspect --format '{{.Digest}}' "docker://${REGISTRY}/${BASE_IMAGE_NAME}")
+          echo "digest=${digest}" >> $GITHUB_OUTPUT
 
       - name: Attest
         uses: actions/attest-build-provenance@v2
         id: attest
-        if: false
         with:
-          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:${{HUGO_VERSION}}
           subject-digest: ${{ steps.merge-images.outputs.digest }}
           push-to-registry: true
 
