@@ -74,7 +74,7 @@ jobs:
           sudo npm install -g @devcontainers/cli
 
           echo "Hugo Version: ${HUGO_VERSION}"
-          LABELS=$(jq -cr '.labels | to_entries|map("--label \'" + .key + "=" + .value + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          LABELS=$(jq -cr '.labels | to_entries|map("--label ''" + .key + "=" + .value + "''") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
           echo "Labels: ${LABELS}"
 
@@ -172,7 +172,7 @@ jobs:
         id: merge-images
         run: |
           # --sbom=true --attest type=provenance,mode=max \
-          ANNOTATIONS=$(jq -cr '.annotations | map("--annotation \'" + . + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          ANNOTATIONS=$(jq -cr '.annotations | map("--annotation ''" + . + "''") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           TAGS=$(jq -cr '.annotations | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
           echo "docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}"
