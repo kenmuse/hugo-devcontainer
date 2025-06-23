@@ -245,7 +245,7 @@ jobs:
         uses: actions/attest-build-provenance@v2
         id: attest
         with:
-          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:${{env.HUGO_VERSION}}
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
           subject-digest: ${{ steps.merge-images.outputs.digest }}
           push-to-registry: true
 
