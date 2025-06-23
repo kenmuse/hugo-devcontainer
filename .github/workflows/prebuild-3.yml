@@ -111,12 +111,20 @@ jobs:
           if-no-files-found: error
           retention-days: 1    
 
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        if: false
+        with:
+          image: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:latest
+          format: 'cyclonedx-json'
+          output-file: 'sbom.cyclonedx.json'
+
       - name: Attest
         uses: actions/attest-build-provenance@v2
-        if: false
+        if: true
         id: attest
         with:
-          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:${{ steps.upload-image.outputs.digest }}
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
           subject-digest: ${{ steps.upload-image.outputs.digest }}
           push-to-registry: true 
 
@@ -242,12 +250,20 @@ jobs:
           digest=$(skopeo inspect --format '{{.Digest}}' "docker://${REGISTRY}/${BASE_IMAGE_NAME}")
           echo "digest=${digest}" >> $GITHUB_OUTPUT
 
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:latest
+          format: 'cyclonedx-json'
+          output-file: 'sbom.cyclonedx.json'
+
       - name: Attest
         uses: actions/attest-build-provenance@v2
         id: attest
         with:
           subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
           subject-digest: ${{ steps.merge-images.outputs.digest }}
+          sbom-path: 'sbom.cyclonedx.json'
           push-to-registry: true
 
       - name: Clean up digests
