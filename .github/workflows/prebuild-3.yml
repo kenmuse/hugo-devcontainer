@@ -77,8 +77,10 @@ jobs:
           LABELS=$(jq -cr $'.labels | to_entries|map("--label \'" + .key + "=" + .value + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
           echo "Labels: ${LABELS}"
+          COMMANDS=(build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}")
+          COMMANDS+=${LABELS[@]}
 
-          devcontainer build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}" ${LABELS[@]}
+          devcontainer ${COMMANDS[@]}
       
       - name: Upload image
         run: |
