@@ -97,7 +97,7 @@ jobs:
           digest=$(skopeo inspect --format '{{.Digest}}' oci-archive:$RUNNER_TEMP/oci-${PLATFORM}.tar.gz)
           echo "Digest: ${digest#sha256:}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
-          echo "digest=${digest}" >> $GITHUB_OUPTUT
+          echo "digest=${digest}" >> $GITHUB_OUTPUT
       
       - name: Upload digest
         uses: actions/upload-artifact@v4
