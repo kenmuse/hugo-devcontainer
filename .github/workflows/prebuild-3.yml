@@ -80,7 +80,7 @@ jobs:
           COMMANDS=(devcontainer build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}" ${LABELS[@]})
           echo "${COMMANDS[@]}"
           echo "---"
-          ${COMMANDS[@]}
+          bash -c "${COMMANDS[@]}""
       
       - name: Upload image
         run: |
