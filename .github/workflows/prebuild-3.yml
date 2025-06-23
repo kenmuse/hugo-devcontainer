@@ -183,11 +183,27 @@ jobs:
         run: |
           # --sbom=true --attest type=provenance,mode=max \
           ANNOTATIONS=$(jq -cr $'.annotations | map("--annotation \'" + . + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          TAGS=$(jq -cr '.tags | map("-t ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          #readarray -t ANNOTATIONS < <($(jq -cr '.annotations[] | "--annotation \'" + . + "\'"' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
+          #readarray -t ANNOTATIONS < <(jq -cr '.annotations[] | "--annotation " + .' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
-          echo "docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}"
+          readarray -t ANNOTATIONS < <(jq -cr $'.annotations[] |"\'" + . + "\'"' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          ANNOTATION_ARGS=()
+          for ann in "${ANNOTATIONS[@]}"; do
+            ANNOTATION_ARGS+=(--annotation "$ann")
+          done
 
-          docker buildx imagetools create "${TAGS[@]}" "${ANNOTATIONS[@]}" "${DIGESTS[@]}"
+          #TAGS=$(jq -cr '.tags | map("-t ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          readarray -t TAGS < <(jq -cr $'.tags[] | "${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + . ' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          TAGS_ARGS=()
+          for ann in "${TAGS[@]}"; do
+            TAGS_ARGS+=(-t "$ann")
+          done
+
+          readarray -T DIGEST_ARGS < <(echo -E "${DIGESTS}")
+
+          echo "docker buildx imagetools create ${TAGS_ARGS[@]} ${ANNOTATION_ARGS[@]} ${DIGEST_ARGS[@]}"
+
+          docker buildx imagetools create "${TAGS_ARGS[@]}" "${TAGS_ARGS[@]}" "${DIGEST_ARGS[@]}"
 
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
