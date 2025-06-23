@@ -25,6 +25,7 @@ jobs:
       contents: read
       id-token: write
       actions: write
+      attestations: write
     env:
       PLATFORM: ${{ matrix.platform }}
     steps:
@@ -131,6 +132,7 @@ jobs:
       actions: write # To cleanup artifacts
       id-token: write
       contents: read
+      attestations: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
