@@ -165,13 +165,14 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{env.HUGO_VERSION}},enable=true
             type=raw,value=latest,enable={{is_default_branch}}
           annotations: |
             org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}}; PowerShell ${{env.PWSH_VERSION}}; Node: ${{env.NODE_VERSION}}
             
       - name: Show meta
         run: |
-            echo $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+            echo $(jq -cr '.tags | map("-t ${REGISTRY}/${BASE_IMAGE_NAME}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
             echo "***"
             echo -E "$DOCKER_METADATA_OUTPUT_JSON"
 
