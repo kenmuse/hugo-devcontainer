@@ -174,7 +174,7 @@ jobs:
             
       - name: Show meta
         run: |
-            echo $(jq -cr '.tags | map("-t ${REGISTRY}/${BASE_IMAGE_NAME}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+            echo $(jq -cr '.tags | map("-t ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
             echo "***"
             echo -E "$DOCKER_METADATA_OUTPUT_JSON"
 
@@ -183,7 +183,7 @@ jobs:
         run: |
           # --sbom=true --attest type=provenance,mode=max \
           ANNOTATIONS=$(jq -cr $'.annotations | map("--annotation \'" + . + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          TAGS=$(jq -cr '.annotations | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          TAGS=$(jq -cr '.tags | map("-t ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:" + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
           echo "docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}"
 
