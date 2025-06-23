@@ -65,8 +65,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-          labels:
-            "org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}}; PowerShell ${{env.PWSH_VERSION}}; Node: ${{env.NODE_VERSION}}"
+          labels: |
+            org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}}; PowerShell ${{env.PWSH_VERSION}}; Node: ${{env.NODE_VERSION}}
 
       - name: Build
         run: |
@@ -165,7 +165,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
           annotations: |
-            "org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}}; PowerShell ${{env.PWSH_VERSION}}; Node: ${{env.NODE_VERSION}}"
+            org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}}; PowerShell ${{env.PWSH_VERSION}}; Node: ${{env.NODE_VERSION}}
             
       - name: Show meta
         run: |
