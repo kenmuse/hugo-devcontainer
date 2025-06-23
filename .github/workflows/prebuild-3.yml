@@ -67,6 +67,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{env.HUGO_VERSION}},enable=true
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.description=Hugo ${{env.HUGO_VERSION}} PowerShell ${{env.PWSH_VERSION}} Node: ${{env.NODE_VERSION}}
