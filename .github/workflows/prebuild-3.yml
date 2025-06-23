@@ -74,7 +74,7 @@ jobs:
           sudo npm install -g @devcontainers/cli
 
           echo "Hugo Version: ${HUGO_VERSION}"
-          LABELS=$(jq -cr '.labels | to_entries|map("--label \"" + .key + "=" + .value + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          LABELS=($(jq -cr '.labels | to_entries|map("--label \"" + .key + "=" + .value + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
 
           devcontainer build \
             --workspace-folder . \
@@ -83,7 +83,7 @@ jobs:
             --config .devcontainer/build/devcontainer.json \
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
             --platform "linux/${PLATFORM}" \
-            $LABELS
+            ${LABELS[@]}
       
       - name: Upload image
         run: |
@@ -115,7 +115,7 @@ jobs:
     permissions:
       packages: write
       actions: write # To cleanup artifacts
-      # id-token: write
+      id-token: write
       contents: read
     steps:
       - name: Checkout code
@@ -174,17 +174,29 @@ jobs:
             echo -E "$DOCKER_METADATA_OUTPUT_JSON"
 
       - name: Merge images
+        id: merge-images
         run: |
           # --sbom=true --attest type=provenance,mode=max \
-          ANNOTATIONS=$(jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          TAGS=$(jq -cr '.annotations | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          ANNOTATIONS=($(jq -cr '.annotations | map("--annotation \"" + . + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
+          TAGS=($(jq -cr '.annotations | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
 
-          echo "docker buildx imagetools create $TAGS $ANNOTATIONS $DIGESTS"
+          echo "docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}"
 
-          docker buildx imagetools create $TAGS $ANNOTATIONS $DIGESTS
+          docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}
 
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
+
+          digest=$(skopeo inspect --format '{{.Digest}}' "docker://${REGISTRY}/${BASE_IMAGE_NAME}")
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v2
+        id: attest
+        if: false
+        with:
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
+          subject-digest: ${{ steps.merge-images.outputs.digest }}
+          push-to-registry: true
 
       - name: Clean up digests
         env:
