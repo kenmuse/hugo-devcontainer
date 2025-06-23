@@ -23,6 +23,8 @@ jobs:
     permissions:
       packages: write
       contents: read
+      id-token: write
+      actions: write
     env:
       PLATFORM: ${{ matrix.platform }}
     steps:
