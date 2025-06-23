@@ -76,6 +76,8 @@ jobs:
           echo "Hugo Version: ${HUGO_VERSION}"
           LABELS=($(jq -cr '.labels | to_entries|map("--label \"" + .key + "=" + .value + "\"") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON"))
 
+          echo "Labels: ${LABELS[@]}"
+
           devcontainer build \
             --workspace-folder . \
             --push false \
