@@ -112,6 +112,7 @@ jobs:
 
       - name: Attest
         uses: actions/attest-build-provenance@v2
+        if: false
         id: attest
         with:
           subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:${{ steps.upload-image.outputs.digest }}
