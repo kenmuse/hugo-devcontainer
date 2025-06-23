@@ -85,7 +85,7 @@ jobs:
             --config .devcontainer/build/devcontainer.json \
             --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" \
             --platform "linux/${PLATFORM}" \
-            ${LABELS[@]}
+            "${LABELS[@]}"
       
       - name: Upload image
         run: |
@@ -184,7 +184,7 @@ jobs:
 
           echo "docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}"
 
-          docker buildx imagetools create ${TAGS[@]} ${ANNOTATIONS[@]} ${DIGESTS[@]}
+          docker buildx imagetools create "${TAGS[@]}" "${ANNOTATIONS[@]}" "${DIGESTS[@]}"
 
           echo "************ INSPECTING IMAGE ************"
           docker buildx imagetools inspect "${REGISTRY}/${BASE_IMAGE_NAME}:${HUGO_VERSION}"
