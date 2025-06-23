@@ -76,11 +76,16 @@ jobs:
           echo "Hugo Version: ${HUGO_VERSION}"
           LABELS=$(jq -cr $'.labels | to_entries|map("--label \'" + .key + "=" + .value + "\'") | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
 
-          echo "Labels: ${LABELS}"
-          COMMANDS=(devcontainer build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}" ${LABELS[@]})
-          echo "${COMMANDS[@]}"
-          echo "---"
-          bash -c "${COMMANDS[@]}""
+          echo "Labels: ${LABELS[@]}"
+
+          # COMMANDS=(devcontainer build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}" ${LABELS[@]})
+          # echo "${COMMANDS[@]}"
+          devcontainer build --workspace-folder . --push false --output type=oci,dest=$RUNNER_TEMP/oci-${PLATFORM}.tar.gz --config .devcontainer/build/devcontainer.json --image-name "${REGISTRY}/${BASE_IMAGE_NAME}-${PLATFORM}:${HUGO_VERSION}" --platform "linux/${PLATFORM}" \
+           --label "org.opencontainers.image.description=Hugo ${HUGO_VERSION} PowerShell ${PWSH_VERSION} Node: ${NODE_VERSION}" \
+           --label "org.opencontainers.image.revision=$GITHUB_REF"  \
+           --label "index:org.opencontainers.image.source=${GITHUB_REPOSITORY_URL}"\
+           --label "index:org.opencontainers.image.version=${HUGO_VERSION}"
+
       
       - name: Upload image
         run: |
