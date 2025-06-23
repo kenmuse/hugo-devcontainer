@@ -199,7 +199,12 @@ jobs:
             TAGS_ARGS+=(-t "$ann")
           done
 
-          readarray -t DIGEST_ARGS < <(echo -E "${DIGESTS}")
+          readarray -t DIGEST_VALS < <(echo -E "${DIGESTS}")
+          DIGEST_ARGS=()
+          for dig in "${DIGEST_VALS[@]}"; do
+            trim=$(echo "$dig" | sed 's/ *$//')
+            DIGEST_ARGS+=("$trim")
+          done
 
           echo "docker buildx imagetools create ${TAGS_ARGS[@]} ${ANNOTATION_ARGS[@]} ${DIGEST_ARGS[@]}"
 
