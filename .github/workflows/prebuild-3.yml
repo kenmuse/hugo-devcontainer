@@ -113,9 +113,8 @@ jobs:
 
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
-        if: false
         with:
-          image: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}:latest
+          image: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}@${{ steps.upload-image.outputs.digest }}
           format: 'cyclonedx-json'
           output-file: 'sbom.cyclonedx.json'
 
@@ -127,6 +126,15 @@ jobs:
           subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
           subject-digest: ${{ steps.upload-image.outputs.digest }}
           push-to-registry: true 
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v2
+        id: attest-sbom
+        with:
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
+          subject-digest: ${{ steps.upload-image.outputs.digest }}
+          sbom-path: 'sbom.cyclonedx.json'
+          push-to-registry: true
 
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v4
@@ -260,6 +268,14 @@ jobs:
       - name: Attest
         uses: actions/attest-build-provenance@v2
         id: attest
+        with:
+          subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
+          subject-digest: ${{ steps.merge-images.outputs.digest }}
+          push-to-registry: true
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v2
+        id: attest-sbom
         with:
           subject-name: ${{env.REGISTRY}}/${{env.BASE_IMAGE_NAME}}
           subject-digest: ${{ steps.merge-images.outputs.digest }}
