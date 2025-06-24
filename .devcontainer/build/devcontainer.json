@@ -3,9 +3,9 @@
 	"name": "Hugo",
 	"dockerFile": "Dockerfile",
 	"build": {
-		// "cacheFrom": [
-        // "type=registry,ref=ghcr.io/kenmuse/hugo-devcontainer:latest"
-		// ]
+		"cacheFrom": [
+         "type=registry,ref=ghcr.io/kenmuse/hugo-devcontainer:latest"
+		],
 		"args": {
 			"GOLANG_VERSION": "1.24.4", // Needs to remain for builds
 
